@@ -25,7 +25,8 @@ from rich.progress import track
 
 args = Namespace(
     data_path=r'..\Data\reviews_with_splits_lite.csv',
-    vector_storage_path=r".\vector_storage\vectors.csv",
+    vector_storage_path=r".\vector_storage",
+    vector_name = 'vectors.csv',
     # chunk_size = 20000,
     max_sentence_length=200,
     device=None,
@@ -49,7 +50,7 @@ if __name__ == '__main__':
     new_data = pd.DataFrame()
     new_data['label'] = data['rating'].map(lambda x: 1 if x == 'positive' else 0)
     new_data['vector'] = review_processed
-    new_data.to_csv( f"{args.vector_storage_path}")
+    new_data.to_csv(args.vector_storage_path + f'/{args.vector_name}')
 
     print("[bold yellow]Complete![/bold yellow]")
 
