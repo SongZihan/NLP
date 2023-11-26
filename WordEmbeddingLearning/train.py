@@ -29,7 +29,7 @@ args = Namespace(
     embedding_dim=300,
     model_state_file='model.pth',
     save_dir='model_storage/yelp/',
-    vector=r'.\vector_storage\vector.csv',
+    vector=r'.\vector_storage\vectors.csv',
     # Training hyper parameters
     batch_size=128,
     early_stopping_criteria=5,
