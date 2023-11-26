@@ -117,10 +117,10 @@ class CustomDataset(Dataset):
         self.labels = labels
 
     def __len__(self):
-        return len(self.data)
+        return len(self.labels)
 
     def __getitem__(self, idx):
-        label = float(self.labels[idx])
+        label = self.labels[idx]
         return self.data[idx], label
 
 

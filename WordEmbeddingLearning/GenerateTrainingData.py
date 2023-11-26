@@ -49,12 +49,8 @@ if __name__ == '__main__':
         review_processed.append(encoding_vectors(tokenize_en(x, spacy_en), vector_dict, unkown_word,mask_word,args.max_sentence_length))
     # 存储tensor
     final_tensor = torch.stack(review_processed,dim=0)
-    final_tensor.save(f"{args.vector_storage_path}/{args.vector_name}")
+    torch.save(final_tensor,f"{args.vector_storage_path}/{args.vector_name}")
 
-    # new_data = pd.DataFrame()
-    # new_data['label'] = data['rating'].map(lambda x: 1 if x == 'positive' else 0)
-    # new_data['vector'] = review_processed
-    # new_data['split'] = data['split']
 
     print("[bold yellow]Complete![/bold yellow]")
 

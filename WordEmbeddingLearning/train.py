@@ -25,11 +25,12 @@ from rich.progress import track
 
 args = Namespace(
     # Data and Path information
+    data_path=r'..\Data\reviews_with_splits_lite.csv',
     max_sentence_length=200,
     embedding_dim=300,
     model_state_file='model.pth',
     save_dir='model_storage/yelp/',
-    vector=r'.\vector_storage\vectors.csv',
+    vector=r'.\vector_storage\vectors.pt',
     # Training hyper parameters
     batch_size=128,
     early_stopping_criteria=5,
@@ -65,12 +66,14 @@ if __name__ == '__main__':
 
     #################### 读取数据 ####################
     with console.status("[bold green]Processing...[/bold green]") as status:
-        data = pd.read_csv(args.vector)
+        data = pd.read_csv(args.data_path)
+        data['label'] = data['rating'].map(lambda x: 1 if x == 'positive' else 0)
+        vectors = torch.load(args.vector)
+
         unkown_word = np.random.randn(args.embedding_dim)  # 生成一个随机向量表示为所有不在词典中的词
         mask_word = np.random.randn(args.embedding_dim)  # 生成一个随机向量表示为所有不在词典中的词
 
         console.log("[italic green]Data Loaded![/italic green]")
-
         #################### 制作数据集 ####################
         status.update("[bold green]Preparing data iterator[/bold green]")
         # 划分数据集
@@ -78,9 +81,9 @@ if __name__ == '__main__':
         valid_data = data[data['split'] == 'val']
         test_data = data[data['split'] == 'test']
         # 构建 pytorch Dataset
-        train_dataset = CustomDataset(list(train_data['vector']), list(train_data['label']))
-        valid_dataset = CustomDataset(list(valid_data['vector']), list(valid_data['label']))
-        test_dataset = CustomDataset(list(test_data['vector']), list(test_data['label']))
+        train_dataset = CustomDataset(vectors, list(train_data['label']))
+        valid_dataset = CustomDataset(vectors, list(valid_data['label']))
+        test_dataset = CustomDataset(vectors, list(test_data['label']))
         console.log("[italic green]Dataset Building Complete![/italic green]")
         #################### 准备模型 ####################
         status.update("[bold green]Preparing model...[/bold green]")
