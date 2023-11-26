@@ -83,12 +83,9 @@ if __name__ == '__main__':
         valid_data = data[data['split'] == 'val']
         test_data = data[data['split'] == 'test']
         # 构建 pytorch Dataset
-        train_dataset = CustomDataset(list(train_data['word_tokenized']), list(train_data['label']), vector_dict,
-                                      unkown_word,mask_word,args.max_sentence_length)
-        valid_dataset = CustomDataset(list(valid_data['word_tokenized']), list(valid_data['label']), vector_dict,
-                                      unkown_word,mask_word,args.max_sentence_length)
-        test_dataset = CustomDataset(list(test_data['word_tokenized']), list(test_data['label']), vector_dict,
-                                     unkown_word,mask_word,args.max_sentence_length)
+        train_dataset = CustomDataset(list(train_data['word_tokenized']), list(train_data['label']))
+        valid_dataset = CustomDataset(list(valid_data['word_tokenized']), list(valid_data['label']))
+        test_dataset = CustomDataset(list(test_data['word_tokenized']), list(test_data['label']))
         console.log("[italic green]Dataset Building Complete![/italic green]")
         #################### 准备模型 ####################
         status.update("[bold green]Preparing model...[/bold green]")

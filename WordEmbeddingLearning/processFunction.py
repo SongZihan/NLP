@@ -86,9 +86,27 @@ def encoding_vectors(token, vector_dict, unkown_word, mask_word, max_length):
     return torch.from_numpy(np.asarray(embedding_vector, dtype=float)).flatten()
 
 
+def read_data_in_chunks(file_path, chunk_size=10000):
+    """
+    使用 Pandas 逐块读取数据。
+    :param file_path: CSV文件路径。
+    :param chunk_size: 每次读取的行数。
+    :return: DataFrame的迭代器。
+    """
+    return pd.read_csv(file_path, chunksize=chunk_size)
+def write_data_chunk(output_file_path, data_chunk, mode='a'):
+    """
+    将处理后的数据块写入CSV文件。
+    :param output_file_path: 输出文件的路径。
+    :param data_chunk: DataFrame数据块。
+    :param mode: 文件打开模式，默认为追加('a')。
+    """
+    header = mode == 'w'  # 如果是写入模式，则添加表头
+    data_chunk.to_csv(output_file_path, mode=mode, header=header, index=False)
+
 # 创建自定义的Dataset对象
 class CustomDataset(Dataset):
-    def __init__(self, data, labels, vector_dict, unkown_word, mask_word, max_length):
+    def __init__(self, data, labels):
         """
         :param data: 特征数据
         :param labels: 标签
@@ -97,21 +115,15 @@ class CustomDataset(Dataset):
         """
         self.data = data
         self.labels = labels
-        self.vector_dict = vector_dict
-        self.unkown_word = unkown_word
-        self.mask_word = mask_word
-        self.max_length = max_length
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
-        x_data = self.transform_x_data(self.data[idx])
         label = float(self.labels[idx])
-        return x_data, label
+        return self.data[idx], label
 
-    def transform_x_data(self, x_data):
-        return encoding_vectors(x_data, self.vector_dict, self.unkown_word, self.mask_word, self.max_length)
+
 
 
 # dataloader = DataLoader(dataset=dataset, batch_size=batch_size,

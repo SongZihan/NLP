@@ -24,33 +24,32 @@ from rich.console import Console
 from rich.progress import track
 
 args = Namespace(
-    data_path=r'W:\PythonDoc\NLP\Data\reviews_with_splits_lite.csv',
+    data_path=r'..\Data\reviews_with_splits_lite.csv',
+    vector_storage_path=r".\vector_storage\vectors.csv",
+    # chunk_size = 20000,
+    max_sentence_length=200,
     device=None,
-    batch_size=128
 )
 
 if __name__ == '__main__':
-    # console = Console()
-    # with console.status("[bold green]Working on processing...") as status:
+    console = Console()
+    with console.status("[bold green]Working on processing...") as status:
+        handle_dirs(args.vector_storage_path)
 
-    handle_dirs(args.vector_storage_path)
-
-
-    data = pd.read_csv(args.data_path)
-    vector_dict = load_vectors(r"W:\PythonDoc\NLP\Data\wiki-news-300d-1M.vec")
-    unkown_word = np.random.randn(len(vector_dict['random']))  # 生成一个随机向量表示为所有不在词典中的词
-    spacy_en = spacy.load('en_core_web_sm') # spacy 分词器
+        data = pd.read_csv(args.data_path)
+        vector_dict = load_vectors(r"W:\PythonDoc\NLP\Data\wiki-news-300d-1M.vec")
+        unkown_word = np.random.randn(len(vector_dict['random']))  # 生成一个随机向量表示为所有不在词典中的词
+        mask_word = np.random.randn(len(vector_dict['random']))  # 生成一个随机向量表示为所有不在词典中的词
+        spacy_en = spacy.load('en_core_web_sm')  # spacy 分词器
 
     print("[bold red]Start Process![/bold red]")
     review_processed = []
-    for x in track(data['review'],"[bold green]UnderProcessing..[/bold green]"):
-        review_processed.append(encoding_vectors(tokenize_en(x,spacy_en), vector_dict, unkown_word))
-    data['vector'] = review_processed
-    data['label'] = data['rating'].map(lambda x: 1 if x == 'positive' else 0)
-
-    data.to_csv(args.vector_storage_path + f"/{args.vector_storage_name}")
+    for x in track(data['review'], "[bold green]UnderProcessing..[/bold green]"):
+        review_processed.append(encoding_vectors(tokenize_en(x, spacy_en), vector_dict, unkown_word,mask_word,args.max_sentence_length))
+    new_data = pd.DataFrame()
+    new_data['label'] = data['rating'].map(lambda x: 1 if x == 'positive' else 0)
+    new_data['vector'] = review_processed
+    new_data.to_csv( f"{args.vector_storage_path}")
 
     print("[bold yellow]Complete![/bold yellow]")
-    # train_data = data[data['split'] == 'train']
-    # valid_data = data[data['split'] == 'val']
-    # test_data = data[data['split'] == 'test']
+
