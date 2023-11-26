@@ -29,8 +29,7 @@ args = Namespace(
     embedding_dim=300,
     model_state_file='model.pth',
     save_dir='model_storage/yelp/',
-    data_path=r'..\Data\reviews_with_splits_lite.csv',
-    vector_dict_path=r'..\Data\wiki-news-300d-1M.vec',
+    vector=r'.\vector_storage\vector.csv',
     # Training hyper parameters
     batch_size=128,
     early_stopping_criteria=5,
@@ -66,26 +65,22 @@ if __name__ == '__main__':
 
     #################### 读取数据 ####################
     with console.status("[bold green]Processing...[/bold green]") as status:
-        data = pd.read_csv(args.data_path)
-        vector_dict = load_vectors(args.vector_dict_path)
-        unkown_word = np.random.randn(len(vector_dict['random']))  # 生成一个随机向量表示为所有不在词典中的词
-        mask_word = np.random.randn(len(vector_dict['random']))  # 生成一个随机向量表示为所有不在词典中的词
+        data = pd.read_csv(args.vector)
+        unkown_word = np.random.randn(args.embedding_dim)  # 生成一个随机向量表示为所有不在词典中的词
+        mask_word = np.random.randn(args.embedding_dim)  # 生成一个随机向量表示为所有不在词典中的词
 
-        spacy_en = spacy.load('en_core_web_sm')  # spacy 分词器
         console.log("[italic green]Data Loaded![/italic green]")
 
         #################### 制作数据集 ####################
         status.update("[bold green]Preparing data iterator[/bold green]")
-        data['label'] = data['rating'].map(lambda x: 1 if x == 'positive' else 0)
-        data['word_tokenized'] = data['review'].map(lambda x: tokenize_en(x, spacy_en))
         # 划分数据集
         train_data = data[data['split'] == 'train']
         valid_data = data[data['split'] == 'val']
         test_data = data[data['split'] == 'test']
         # 构建 pytorch Dataset
-        train_dataset = CustomDataset(list(train_data['word_tokenized']), list(train_data['label']))
-        valid_dataset = CustomDataset(list(valid_data['word_tokenized']), list(valid_data['label']))
-        test_dataset = CustomDataset(list(test_data['word_tokenized']), list(test_data['label']))
+        train_dataset = CustomDataset(list(train_data['vector']), list(train_data['label']))
+        valid_dataset = CustomDataset(list(valid_data['vector']), list(valid_data['label']))
+        test_dataset = CustomDataset(list(test_data['vector']), list(test_data['label']))
         console.log("[italic green]Dataset Building Complete![/italic green]")
         #################### 准备模型 ####################
         status.update("[bold green]Preparing model...[/bold green]")

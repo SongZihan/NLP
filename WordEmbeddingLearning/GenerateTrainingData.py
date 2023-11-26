@@ -38,7 +38,7 @@ if __name__ == '__main__':
         handle_dirs(args.vector_storage_path)
 
         data = pd.read_csv(args.data_path)
-        vector_dict = load_vectors(r"W:\PythonDoc\NLP\Data\wiki-news-300d-1M.vec")
+        vector_dict = load_vectors(r"..\Data\wiki-news-300d-1M.vec")
         unkown_word = np.random.randn(len(vector_dict['random']))  # 生成一个随机向量表示为所有不在词典中的词
         mask_word = np.random.randn(len(vector_dict['random']))  # 生成一个随机向量表示为所有不在词典中的词
         spacy_en = spacy.load('en_core_web_sm')  # spacy 分词器
@@ -50,6 +50,7 @@ if __name__ == '__main__':
     new_data = pd.DataFrame()
     new_data['label'] = data['rating'].map(lambda x: 1 if x == 'positive' else 0)
     new_data['vector'] = review_processed
+    new_data['split'] = data['split']
     new_data.to_csv(args.vector_storage_path + f'/{args.vector_name}')
 
     print("[bold yellow]Complete![/bold yellow]")
