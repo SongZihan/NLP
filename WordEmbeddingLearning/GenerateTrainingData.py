@@ -26,7 +26,7 @@ from rich.progress import track
 args = Namespace(
     data_path=r'..\Data\reviews_with_splits_lite.csv',
     vector_storage_path=r".\vector_storage",
-    vector_name = 'vectors.pt',
+    vector_name = 'vectors.csv',
     # chunk_size = 20000,
     max_sentence_length=200,
     device=None,
@@ -47,10 +47,15 @@ if __name__ == '__main__':
     review_processed = []
     for x in track(data['review'], "[bold green]UnderProcessing..[/bold green]"):
         review_processed.append(encoding_vectors(tokenize_en(x, spacy_en), vector_dict, unkown_word,mask_word,args.max_sentence_length))
-    # 存储tensor
-    final_tensor = torch.stack(review_processed,dim=0)
-    torch.save(final_tensor,f"{args.vector_storage_path}/{args.vector_name}")
 
+    new_data = pd.DataFrame()
+    new_data['label'] = data['rating'].map(lambda x: 1 if x == 'positive' else 0)
+    new_data['split'] = data['split']
+    new_data['vector'] = review_processed
+
+    new_data.to_csv(f"{args.vector_storage_path}/{args.vector_name}")
+    # final_tensor = torch.stack(review_processed,dim=0)
+    # torch.save(final_tensor,f"{args.vector_storage_path}/{args.vector_name}")
 
     print("[bold yellow]Complete![/bold yellow]")
 

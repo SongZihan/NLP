@@ -83,7 +83,7 @@ def encoding_vectors(token, vector_dict, unkown_word, mask_word, max_length):
             embedding_vector.append(mask_word)
 
     # 使用numpy将字符串转化为浮点数，再转化为tensor后展平
-    return torch.from_numpy(np.asarray(embedding_vector, dtype=float))
+    return np.asarray(embedding_vector, dtype=float).tolist()
 
 
 def read_data_in_chunks(file_path, chunk_size=10000):
@@ -121,7 +121,8 @@ class CustomDataset(Dataset):
 
     def __getitem__(self, idx):
         label = self.labels[idx]
-        return self.data[idx], label
+
+        return torch.from_numpy(np.asarray(self.data[idx])), label
 
 
 
