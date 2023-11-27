@@ -132,7 +132,7 @@ if __name__ == '__main__':
                 optimizer.zero_grad()
 
                 # step 2. compute the output
-                y_pred = classifier(x_in=batch_data[0].float().to(args.device))
+                y_pred = classifier.forward(x_in=batch_data[0].float().to(args.device))
 
                 # step 3. compute the loss
                 loss = loss_func(y_pred.cpu(), batch_data[1].float())
@@ -150,7 +150,7 @@ if __name__ == '__main__':
                 running_acc += (acc_t - running_acc) / (batch_index + 1)
 
                 progress.update(train_epoch_progress, advance=1,
-                                description=f'[green]Train Epoch...loss:{round(running_loss, 2)} Acc:{round(running_acc, 2)} Epoch:{epoch_index}')
+                                description=f'[green]Train Epoch...loss:{round(loss_t, 2)} Acc:{round(acc_t, 2)} Epoch:{epoch_index}')
 
             train_state['train_loss'].append(running_loss)
             train_state['train_acc'].append(running_acc)
@@ -162,7 +162,7 @@ if __name__ == '__main__':
 
             for batch_index, batch_data in enumerate(valid_dataloader):
                 # compute the output
-                y_pred = classifier(x_in=batch_data[0].float().to(args.device))
+                y_pred = classifier.forward(x_in=batch_data[0].float().to(args.device))
 
                 # step 3. compute the loss
                 loss = loss_func(y_pred.cpu(), batch_data[1].float())
