@@ -64,7 +64,7 @@ if __name__ == '__main__':
         text_map,processed_text = generate_vocab(list(data['processed_text']))
 
         max_length = max(len(seq) for seq in processed_text)
-        padded_sequences = np.array([int(np.pad(seq, (0, max_length - len(seq)), mode='constant')) for seq in processed_text])
+        padded_sequences = np.array([np.pad(int(seq), (0, max_length - len(seq)), mode='constant') for seq in processed_text])
         data['processed_text'] = padded_sequences.tolist()
         console.log("[italic green]Data Loaded![/italic green]")
         #################### 制作数据集 ####################
