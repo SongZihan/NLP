@@ -18,7 +18,7 @@ from rich.progress import Progress
 import time
 from rich import print
 
-from ReviewClassifier import ReviewClassifier
+from ReviewClassifier import ReviewClassifier, ReviewClassifierRNN
 from processFunction import *
 from rich.console import Console
 from rich.progress import track
@@ -87,7 +87,7 @@ if __name__ == '__main__':
         console.log("[italic green]Dataset Building Complete![/italic green]")
         #################### 准备模型 ####################
         status.update("[bold green]Preparing model...[/bold green]")
-        classifier = ReviewClassifier(num_features=args.embedding_dim * args.max_sentence_length).to(args.device)
+        classifier = ReviewClassifierRNN(args.embedding_dim * args.max_sentence_length,1024,2).to(args.device)
         loss_func = nn.BCEWithLogitsLoss()
         optimizer = optim.Adam(classifier.parameters(), lr=args.learning_rate)
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer,
