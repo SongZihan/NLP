@@ -114,15 +114,16 @@ class CustomDataset(Dataset):
         :param unkown_word: 非字典字符应用unkown word
         """
         self.data = data
-        self.labels = labels
+        self.list_label = list(labels['label'])
+        self.list_index = list(labels['new_index'])
 
     def __len__(self):
         return len(self.labels)
 
     def __getitem__(self, idx):
-        label = self.labels['label'][idx]
+        label = self.list_label[idx]
 
-        return self.data[self.labels['new_index'][idx]], label
+        return self.data[self.list_index[idx]], label
 
 
 
