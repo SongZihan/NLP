@@ -150,7 +150,7 @@ if __name__ == '__main__':
                 running_acc += (acc_t - running_acc) / (batch_index + 1)
 
                 progress.update(train_epoch_progress, advance=1,
-                                description=f'[green]Train Epoch...loss:{round(loss_t, 2)} Acc:{round(acc_t, 2)} Epoch:{epoch_index}')
+                                description=f'[green]Train Epoch...loss:{round(running_loss, 2)} Acc:{round(running_acc, 2)} Epoch:{epoch_index}')
 
             train_state['train_loss'].append(running_loss)
             train_state['train_acc'].append(running_acc)
