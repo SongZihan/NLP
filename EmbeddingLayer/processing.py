@@ -103,7 +103,7 @@ class CustomDataset(Dataset):
         :param vector_dict: 用于embedding的字典
         :param unkown_word: 非字典字符应用unkown word
         """
-        self.data = torch.tensor(data, dtype=torch.long)
+        self.data = torch.tensor(data, dtype=torch.int)
         self.labels = labels
 
     def __len__(self):
