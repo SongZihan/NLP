@@ -68,12 +68,13 @@ if __name__ == '__main__':
         data['processed_text'] = padded_sequences.tolist()
         console.log("[italic green]Data Loaded![/italic green]")
         #################### 制作数据集 ####################
+        print(11)
         status.update("[bold green]Preparing data iterator[/bold green]")
         # 划分数据集
         train_data = data[data['split'] == 'train']
         valid_data = data[data['split'] == 'val']
         test_data = data[data['split'] == 'test']
-
+        print(11)
         # 构建 pytorch Dataset
         train_dataset = CustomDataset(list(train_data['processed_text']), list(train_data['label']))
         valid_dataset = CustomDataset(list(valid_data['processed_text']), list(valid_data['label']))
