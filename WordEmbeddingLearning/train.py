@@ -34,8 +34,8 @@ args = Namespace(
     # Training hyper parameters
     batch_size=128,
     early_stopping_criteria=5,
-    learning_rate=0.001,
-    num_epochs=100,
+    learning_rate=0.003,
+    num_epochs=50,
     seed=1337,
     # Runtime options
     catch_keyboard_interrupt=True,
@@ -91,7 +91,7 @@ if __name__ == '__main__':
         console.log("[italic green]Dataset Building Complete![/italic green]")
         #################### 准备模型 ####################
         status.update("[bold green]Preparing model...[/bold green]")
-        classifier = ReviewClassifierRNN(args.embedding_dim,1024,2,args.device).to(args.device)
+        classifier = ReviewClassifierRNN(args.embedding_dim,1024,1,args.device).to(args.device)
         loss_func = nn.BCEWithLogitsLoss()
         optimizer = optim.Adam(classifier.parameters(), lr=args.learning_rate)
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer,
