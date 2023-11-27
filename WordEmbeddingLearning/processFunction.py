@@ -118,7 +118,7 @@ class CustomDataset(Dataset):
         self.list_index = list(labels['new_index'])
 
     def __len__(self):
-        return len(self.labels)
+        return len(self.list_label)
 
     def __getitem__(self, idx):
         label = self.list_label[idx]
