@@ -68,13 +68,13 @@ if __name__ == '__main__':
         data['processed_text'] = padded_sequences.tolist()
         console.log("[italic green]Data Loaded![/italic green]")
         #################### 制作数据集 ####################
-        print("[bold green]Preparing data iterator[/bold green]")
-        # status.update("[bold green]Preparing data iterator[/bold green]")
+        # print("[bold green]Preparing data iterator[/bold green]")
+        status.update("[bold green]Preparing data iterator[/bold green]")
         # 划分数据集
         train_data = data[data['split'] == 'train']
         valid_data = data[data['split'] == 'val']
         test_data = data[data['split'] == 'test']
-        print(11)
+        console.log("[italic green]Dataset split![/italic green]")
         # 构建 pytorch Dataset
         train_dataset = CustomDataset(list(train_data['processed_text']), list(train_data['label']))
         valid_dataset = CustomDataset(list(valid_data['processed_text']), list(valid_data['label']))
@@ -94,9 +94,8 @@ if __name__ == '__main__':
         train_state = make_train_state(learning_rate,model_state_file)
         console.log("[italic green]Model Building Complete![/italic green]")
 
-    print("[italic green]Starting training...[/italic green]")
     #################### 开始训练 ####################
-    # console.log("[italic green]Starting training...[/italic green]")
+    console.log("[italic green]Starting training...[/italic green]")
     # 训练进度条
     progress = Progress()
     with Progress() as progress:
