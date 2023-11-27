@@ -66,7 +66,6 @@ if __name__ == '__main__':
         max_length = max(len(seq) for seq in processed_text)
         padded_sequences = np.array([np.pad(seq, (0, max_length - len(seq)), mode='constant') for seq in processed_text])
         data['processed_text'] = padded_sequences.tolist()
-
         console.log("[italic green]Data Loaded![/italic green]")
         #################### 制作数据集 ####################
         status.update("[bold green]Preparing data iterator[/bold green]")
@@ -84,7 +83,7 @@ if __name__ == '__main__':
         #################### 准备模型 ####################
         status.update("[bold green]Preparing model...[/bold green]")
 
-        classifier = ReviewClassifierRNN(len(text_map) + 1,64,64,1,device).to(device)
+        classifier = ReviewClassifierRNN(len(text_map) + 1,256,256,1,device).to(device)
 
         loss_func = nn.BCELoss()
         optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
