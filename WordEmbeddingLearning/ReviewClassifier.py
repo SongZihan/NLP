@@ -51,7 +51,7 @@ class ReviewClassifier(nn.Module):
 class ReviewClassifierRNN(nn.Module):
     """ RNN-based classifier """
 
-    def __init__(self, num_features, hidden_dim, n_layers):
+    def __init__(self, num_features, hidden_dim, n_layers,device):
         """
         Args:
             num_features (int): the size of the input feature vector per time step.
@@ -60,6 +60,7 @@ class ReviewClassifierRNN(nn.Module):
         """
         super(ReviewClassifierRNN, self).__init__()
 
+        self.device =device
         self.hidden_dim = hidden_dim
         self.n_layers = n_layers
 
@@ -94,5 +95,5 @@ class ReviewClassifierRNN(nn.Module):
 
     def init_hidden(self, batch_size):
         # Generates the first hidden state of zeros which we'll use in the forward pass
-        hidden = torch.zeros(self.n_layers, batch_size, self.hidden_dim)
+        hidden = torch.zeros(self.n_layers, batch_size, self.hidden_dim).to(self.device)
         return hidden
