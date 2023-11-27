@@ -16,10 +16,17 @@ class ReviewClassifier(nn.Module):
             num_features (int): the size of the input feature vector
         """
         super(ReviewClassifier, self).__init__()
-        self.fc1 = nn.Linear(in_features=num_features,
-                             out_features=1)
+        self.fc1 = nn.Linear(num_features,1024)
+        self.activation1 = nn.ReLU()
 
-    def forward(self, x_in, apply_sigmoid=False):
+        self.fc2 = nn.Linear(1024,512)
+        self.activation2 = nn.ReLU()
+
+        self.fc3 = nn.Linear(512,256)
+        self.activation3 = nn.ReLU()
+
+        self.fc4 =  nn.Linear(256,1)
+    def forward(self, x_in, apply_sigmoid=True):
         """The forward pass of the classifier
 
         Args:
@@ -30,7 +37,12 @@ class ReviewClassifier(nn.Module):
         Returns:
             the resulting tensor. tensor.shape should be (batch,)
         """
-        y_out = self.fc1(x_in).squeeze()
+        y1 = self.activation1(self.fc1(x_in))
+        y2 = self.activation2(self.fc2(y1))
+        y3 = self.activation3(self.fc3(y2))
+
+        y_out = self.fc4(y3).squeeze()
+
         if apply_sigmoid:
             y_out = torch.sigmoid(y_out)
         return y_out
