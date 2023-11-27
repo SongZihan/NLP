@@ -65,7 +65,7 @@ class ReviewClassifierRNN(nn.Module):
         self.n_layers = n_layers
 
         # RNN Layer
-        self.rnn = nn.RNN(num_features, hidden_dim, n_layers, batch_first=True)
+        self.rnn = nn.GRU(num_features, hidden_dim, n_layers, batch_first=True)
 
         # Fully connected layer
         self.fc = nn.Linear(hidden_dim, 1)

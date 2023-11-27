@@ -92,7 +92,7 @@ if __name__ == '__main__':
         #################### 准备模型 ####################
         status.update("[bold green]Preparing model...[/bold green]")
         classifier = ReviewClassifierRNN(args.embedding_dim,1024,1,args.device).to(args.device)
-        loss_func = nn.BCEWithLogitsLoss()
+        loss_func = nn.BCELoss()
         optimizer = optim.Adam(classifier.parameters(), lr=args.learning_rate)
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer,
                                                          mode='min', factor=0.5,
