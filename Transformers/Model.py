@@ -189,7 +189,7 @@ def get_attn_subsequence_mask(seq):                               # seq: [batch_
     return subsequence_mask
 
 class Transformer(nn.Module):
-    def __init__(self,tgt_vocab_size,src_vocab_size):
+    def __init__(self,src_vocab_size,tgt_vocab_size):
         super(Transformer, self).__init__()
         self.Encoder = Encoder(src_vocab_size).to(ParameterStorage.device)
         self.Decoder = Decoder(tgt_vocab_size).to(ParameterStorage.device)

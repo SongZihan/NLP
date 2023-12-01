@@ -69,6 +69,7 @@ class Vocabulary:
                 else:
                     self.freq_dict_trt[token] += 1
 
+
     def text_to_ids(self,dataset,IsDecoderData=False,max_length=256):
         """
         将输入数据集映射为数字索引
