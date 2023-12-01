@@ -4,9 +4,9 @@ class ParameterStorage:
     data_path = "../Data/nmt/simplest_eng_fra.csv"
     vocab_save_path="./vocab.pkl"
     storage_path = "./processed_data.pkl"
-    max_sentence_length = 256 # 最大句子长度
+    max_sentence_length = 64 # 最大句子长度
 
-    batch_size = 512
+    batch_size = 128
     epochs = 100
 
     d_model = 64  # 字 Embedding 的维度
