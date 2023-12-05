@@ -5,6 +5,8 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data as Data
 
+from ParameterStorage import ParameterStorage
+
 
 # 自定义数据集函数
 class MyDataSet(Data.Dataset):
@@ -19,3 +21,37 @@ class MyDataSet(Data.Dataset):
 
     def __getitem__(self, idx):
         return self.enc_inputs[idx], self.dec_inputs[idx], self.dec_outputs[idx]
+
+
+class EarlyStopping:
+    def __init__(self, patience=7, min_delta=0.01):
+        """
+        patience: 经过多少个epoch没有改善后停止训练。
+        min_delta: 认为改善了的最小变化。
+        """
+        self.patience = patience
+        self.min_delta = min_delta
+        self.counter = 0
+        self.best_loss = None
+        self.early_stop = False
+
+    def __call__(self, val_loss):
+        if self.best_loss is None:
+            self.best_loss = val_loss
+        elif self.best_loss - val_loss > self.min_delta:
+            self.best_loss = val_loss
+            self.counter = 0
+        else:
+            self.counter += 1
+            if self.counter >= self.patience:
+                self.early_stop = True
+
+def make_train_state():
+    return {
+            'learning_rate': ParameterStorage.learning_rate,
+            'epochs': ParameterStorage.epochs,
+            'train_loss': [],
+            'valid_loss': [],
+            'model_filename': ParameterStorage.model_state_file
+    }
+

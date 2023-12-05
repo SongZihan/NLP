@@ -185,16 +185,39 @@ if __name__ == '__main__':
         result = dict()
         result['split'] = df['split'].tolist()
 
+
+        train_df = df[df['split'] == "train"]
+        valid_df = df[df['split'] == "val"]
+        test_df = df[df['split'] == "test"]
+
         vocab = Vocabulary()
-        vocab.generate_vocabulary(df['source_language'].tolist(),df['target_language'].tolist())
 
-        result['encoder_input'] = vocab.text_to_ids(df['source_language'].tolist(),max_length=ParameterStorage.max_sentence_length,IsDecoderData=False)
 
-        decoder_data = vocab.text_to_ids(df['target_language'],True,max_length=ParameterStorage.max_sentence_length)
+        vocab.generate_vocabulary(train_df['source_language'].tolist(),train_df['target_language'].tolist())
+
+        result['train'] = {}
+        result['train']['encoder_input'] = vocab.text_to_ids(train_df['source_language'].tolist(),max_length=ParameterStorage.max_sentence_length,IsDecoderData=False)
+        decoder_data = vocab.text_to_ids(train_df['target_language'],True,max_length=ParameterStorage.max_sentence_length)
         decoder_data = np.array(decoder_data)
+        result['train']['decoder_input'] = decoder_data[:, :-1].tolist()
+        result['train']['decoder_output'] = decoder_data[:, 1:].tolist()
 
-        result['decoder_input'] = decoder_data[:, :-1].tolist()
-        result['decoder_output'] = decoder_data[:, 1:].tolist()
+        result['valid'] = {}
+        result['valid']['encoder_input'] = vocab.text_to_ids(valid_df['source_language'].tolist(),max_length=ParameterStorage.max_sentence_length,IsDecoderData=False)
+        decoder_data = vocab.text_to_ids(valid_df['target_language'],True,max_length=ParameterStorage.max_sentence_length)
+        decoder_data = np.array(decoder_data)
+        result['valid']['decoder_input'] = decoder_data[:, :-1].tolist()
+        result['valid']['decoder_output'] = decoder_data[:, 1:].tolist()
+
+
+        result['test'] = {}
+        result['test']['encoder_input'] = vocab.text_to_ids(test_df['source_language'].tolist(),max_length=ParameterStorage.max_sentence_length,IsDecoderData=False)
+        result['test']['encoder_input'] = vocab.text_to_ids(test_df['source_language'].tolist(),max_length=ParameterStorage.max_sentence_length,IsDecoderData=False)
+        decoder_data = vocab.text_to_ids(test_df['target_language'],True,max_length=ParameterStorage.max_sentence_length)
+        decoder_data = np.array(decoder_data)
+        result['test']['decoder_input'] = decoder_data[:, :-1].tolist()
+        result['test']['decoder_output'] = decoder_data[:, 1:].tolist()
+
 
         # 将字典序列化为pickle文件
         with open(ParameterStorage.storage_path, 'wb') as f:

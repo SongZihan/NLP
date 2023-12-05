@@ -11,7 +11,6 @@ from ParameterStorage import ParameterStorage
 
 
 #################### 定义位置编码 ####################
-
 class PositionalEncoding(torch.nn.Module):
     def __init__(self, d_model, max_len=5000):
         super(PositionalEncoding, self).__init__()
@@ -141,7 +140,6 @@ class DecoderLayer(nn.Module):
         self.dec_self_attn = MultiHeadAttention()
         self.dec_enc_attn = MultiHeadAttention()
         self.pos_ffn = PoswiseFeedForwardNet()
-
     def forward(self, dec_inputs, enc_outputs, dec_self_attn_mask, dec_enc_attn_mask): # dec_inputs: [batch_size, tgt_len, d_model]
                                                                                        # enc_outputs: [batch_size, src_len, d_model]
                                                                                        # dec_self_attn_mask: [batch_size, tgt_len, tgt_len]
@@ -191,16 +189,30 @@ def get_attn_subsequence_mask(seq):                               # seq: [batch_
 class Transformer(nn.Module):
     def __init__(self,src_vocab_size,tgt_vocab_size):
         super(Transformer, self).__init__()
+        self.tgt_len = ParameterStorage.max_sentence_length
+        self.tgt_vocab_size = tgt_vocab_size
         self.Encoder = Encoder(src_vocab_size).to(ParameterStorage.device)
         self.Decoder = Decoder(tgt_vocab_size).to(ParameterStorage.device)
         self.projection = nn.Linear(ParameterStorage.d_model, tgt_vocab_size, bias=False).to(ParameterStorage.device)
-    def forward(self, enc_inputs, dec_inputs):                         # enc_inputs: [batch_size, src_len]
-                                                                       # dec_inputs: [batch_size, tgt_len]
-        enc_outputs, enc_self_attns = self.Encoder(enc_inputs)         # enc_outputs: [batch_size, src_len, d_model],
-                                                                       # enc_self_attns: [n_layers, batch_size, n_heads, src_len, src_len]
-        dec_outputs, dec_self_attns, dec_enc_attns = self.Decoder(
-            dec_inputs, enc_inputs, enc_outputs)                       # dec_outpus    : [batch_size, tgt_len, d_model],
-                                                                       # dec_self_attns: [n_layers, batch_size, n_heads, tgt_len, tgt_len],
-                                                                       # dec_enc_attn  : [n_layers, batch_size, tgt_len, src_len]
-        dec_logits = self.projection(dec_outputs)                      # dec_logits: [batch_size, tgt_len, tgt_vocab_size]
-        return dec_logits.view(-1, dec_logits.size(-1)), enc_self_attns, dec_self_attns, dec_enc_attns
+    def forward(self, enc_inputs, dec_inputs,is_valid = False):
+        enc_outputs, enc_self_attns = self.Encoder(enc_inputs)
+        if not is_valid:
+            dec_outputs, dec_self_attns, dec_enc_attns = self.Decoder(
+                dec_inputs, enc_inputs, enc_outputs)
+            dec_logits = self.projection(dec_outputs)
+            return dec_logits.view(-1, dec_logits.size(-1)), enc_self_attns, dec_self_attns, dec_enc_attns
+        else:
+            # 自回归计算decoder output
+            dec_inputs = torch.zeros_like(dec_inputs)
+            output_loss = torch.zeros(dec_inputs.shape[0],dec_inputs.shape[1],self.tgt_vocab_size)
+            next_symbol = 0
+            with torch.no_grad():
+                for i in range(0, self.tgt_len):
+                    dec_inputs[:,i] = next_symbol
+                    dec_outputs, _, _ = self.Decoder(dec_inputs, enc_inputs, enc_outputs)
+                    projected = self.projection(dec_outputs)
+                    output_loss[:,i] = projected[:,i]
+                    prob = projected.squeeze(0).max(dim=-1, keepdim=False)[1]
+                    next_symbol = prob.data[:,i]
+            # 展平batch和seq
+            return dec_inputs, output_loss.view(-1, output_loss.size(-1))
