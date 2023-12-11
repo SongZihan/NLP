@@ -71,12 +71,14 @@ if __name__ == '__main__':
 
             console.log(f"[italic green]Epoch: {epoch}/{ParameterStorage.epochs} train loss: {round(np.mean(train_loss_list),2)}, valid loss: {round(np.mean(valid_loss_list),2)}[/italic green]")
 
+            # 每epoch存储
+            torch.save(model.state_dict(), f'./model/{epoch}_model.pt')
+
         #################### 存储模型 ####################
         console.log("[italic green]Training Complete![/italic green]")
-        torch.save(model.state_dict(), train_state['model_filename'])
         # 存储参数
         with open(ParameterStorage.history_file, 'w') as json_file:
-            json.dump(data, json_file)
+            json.dump(train_state, json_file)
 
 
 

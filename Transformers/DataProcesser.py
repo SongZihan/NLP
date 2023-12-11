@@ -44,8 +44,8 @@ class Vocabulary:
             '<pad>': 2,
             '<unk>': 3})
         self.text_dict_src.update({
-            '<pad>': 2,
-            '<unk>': 3})
+            '<pad>': 0,
+            '<unk>': 1})
 
         for i in src_dataset:
             # 分词
@@ -57,6 +57,8 @@ class Vocabulary:
                     self.freq_dict_src[token] = 0
                 else:
                     self.freq_dict_src[token] += 1
+        # 更新反向词汇表
+        self.inverse_dict_src = {value: key for key, value in self.text_dict_src.items()}
 
         for i in trt_dataset:
             # 分词
@@ -68,7 +70,8 @@ class Vocabulary:
                     self.freq_dict_trt[token] = 0
                 else:
                     self.freq_dict_trt[token] += 1
-
+        # 更新反向词汇表
+        self.inverse_dict_trt = {value: key for key, value in self.text_dict_trt.items()}
 
     def text_to_ids(self,dataset,IsDecoderData=False,max_length=256):
         """
@@ -101,8 +104,7 @@ class Vocabulary:
                 sentence_cache[-1] = self.text_dict_trt['<eos>']
 
                 result.append(sentence_cache)
-            # 更新反向词汇表
-            self.inverse_dict_trt = {value:key for key, value in self.text_dict_trt.items()}
+
         else:
             result = []
             for i in dataset:
@@ -124,8 +126,7 @@ class Vocabulary:
                         sentence_cache.append(self.text_dict_src['<pad>'])
 
                 result.append(sentence_cache)
-            # 更新反向词汇表
-            self.inverse_dict_src = {value: key for key, value in self.text_dict_src.items()}
+
 
         return result
 
@@ -217,6 +218,17 @@ if __name__ == '__main__':
         decoder_data = np.array(decoder_data)
         result['test']['decoder_input'] = decoder_data[:, :-1].tolist()
         result['test']['decoder_output'] = decoder_data[:, 1:].tolist()
+
+        #################### 测试正确性 ####################
+        print("encoder:")
+        print(f"RawText: {train_df['source_language'].tolist()[0]}")
+        print(f"TranformText: {vocab.ids_to_single_text(result['train']['encoder_input'][0],IsDecoderData=False)}")
+        print("DecoderInput:")
+        print(f"RawText: {train_df['target_language'].tolist()[0]}")
+        print(f"TranformText: {vocab.ids_to_single_text(result['train']['decoder_input'][0])}")
+        print("DecoderOutput:")
+        print(f"TranformText: {vocab.ids_to_single_text(result['train']['decoder_output'][0])}")
+
 
 
         # 将字典序列化为pickle文件
