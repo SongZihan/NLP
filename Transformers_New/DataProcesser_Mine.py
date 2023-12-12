@@ -10,11 +10,14 @@ from rich.progress import track
 from ParameterStorage import ParameterStorage
 import torch
 import torch.utils.data as Data
-
+import spacy
 
 class Vocabulary:
     def __init__(self):
-        self.tokenizer = BertTokenizerFast.from_pretrained('bert-base-multilingual-cased')
+        # self.tokenizer = BertTokenizerFast.from_pretrained('bert-base-multilingual-cased')
+        self.spacy_de = spacy.load('de_core_news_sm')
+        self.spacy_en = spacy.load('en_core_web_sm')
+
         self.vocab_save_path = ParameterStorage.vocab_save_path
         #################### 源语言 ####################
         self.text_dict_src = {}  # 词汇表
@@ -33,6 +36,13 @@ class Vocabulary:
         single_text = single_text.lower().strip()
 
         return re.sub(f'[{string.punctuation}\n]', '', single_text)
+
+    def tokenize_de(self, text):
+        return [tok.text for tok in self.spacy_de.tokenizer(text)]
+    def tokenize_en(self,text):
+        return [tok.text for tok in self.spacy_en.tokenizer(text)]
+
+
     def generate_vocabulary(self, src_dataset,trt_dataset):
         """
         根据输入的数据集，生成词汇表
@@ -52,7 +62,7 @@ class Vocabulary:
 
         for i in src_dataset:
             # 分词
-            this_tokens = self.tokenizer.tokenize(self.preprocess(i))
+            this_tokens = self.tokenize_en(self.preprocess(i))
             # 映射索引
             for token in this_tokens:
                 if token not in self.text_dict_src.keys():
@@ -65,7 +75,7 @@ class Vocabulary:
 
         for i in trt_dataset:
             # 分词
-            this_tokens = self.tokenizer.tokenize(self.preprocess(i))
+            this_tokens = self.tokenize_de(self.preprocess(i))
             # 映射索引
             for token in this_tokens:
                 if token not in self.text_dict_trt.keys():
@@ -87,7 +97,7 @@ class Vocabulary:
             result = []
             for i in dataset:
                 # 分词
-                this_tokens = self.tokenizer.tokenize(self.preprocess(i))
+                this_tokens = self.tokenize_de(self.preprocess(i))
                 # 映射索引
                 sentence_cache = []
                 for token in this_tokens:
@@ -112,7 +122,7 @@ class Vocabulary:
             result = []
             for i in dataset:
                 # 分词
-                this_tokens = self.tokenizer.tokenize(self.preprocess(i))
+                this_tokens = self.tokenize_en(self.preprocess(i))
                 # 映射索引
                 sentence_cache = []
                 for token in this_tokens:

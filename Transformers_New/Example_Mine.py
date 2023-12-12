@@ -74,6 +74,7 @@ if __name__ == '__main__':
         for epoch in range(ParameterStorage.epochs):
             model.train()
             loss = run_epoch_mine(train_loader,model,SimpleLossCompute(model.generator, criterion, model_opt),pad_idx)
+            print(f"Epoch {epoch}, loss is {loss}")
             model.eval()
             valid_loss = run_epoch_mine(valid_loader,model,SimpleLossCompute(model.generator, criterion, None),pad_idx)
             # 存储模型

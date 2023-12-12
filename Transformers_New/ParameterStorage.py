@@ -5,7 +5,7 @@ class ParameterStorage:
     vocab_save_path="./vocab.pkl"
     storage_path = "./processed_data.pkl"
 
-    model_state_file = "./model/87_model.pt"
+    model_state_file = "./model/47_model.pt"
     test_performance_file = "./model/performance.json"
     history_file = "./model/training_history.json"
 

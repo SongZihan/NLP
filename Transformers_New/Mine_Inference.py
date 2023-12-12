@@ -59,6 +59,53 @@ def greedy_decode(model, src, src_mask, max_len, start_symbol):
     return ys
 
 
+def beam_search(model, src_input, src_mask, max_len, start_symbol, end_symbol, beam_size=3):
+    """
+    Beam search for sequence generation.
+
+    Args:
+    - model: Seq2Seq model for generating sequences.
+    - src_input: Input tensor for source sequence.
+    - src_mask: Mask for source sequence.
+    - max_len: Maximum length for output sequence.
+    - start_symbol: Start symbol id for decoding.
+    - end_symbol: End symbol id for decoding.
+    - beam_size: Size of the beam.
+
+    Returns:
+    - A tensor containing the index of the best sequence.
+    """
+    memory = model.encode(src_input, src_mask)
+
+    ys = torch.ones(1, 1).fill_(start_symbol).type_as(src_input.data).to(ParameterStorage.device)
+    beam = [(ys, 0.0)]  # Each element in beam is (sequence, score)
+
+    for _ in range(max_len):
+        candidates = []
+        for seq, score in beam:
+            if seq[0, -1] == end_symbol:
+                candidates.append((seq, score))
+                continue
+
+            out = model.decode(memory, src_mask,
+                               Variable(seq),
+                               Variable(subsequent_mask(seq.size(1))
+                                        .type_as(src_input.data)))
+            prob = model.generator(out[:, -1])
+
+            top_probs, top_ix = prob.topk(beam_size)
+
+            for i in range(beam_size):
+                next_seq = torch.cat([seq, top_ix[:,i].unsqueeze(0)], dim=1)
+                next_score = score + top_probs[:,i]  # Negative log-likelihood
+                candidates.append((next_seq, next_score))
+
+        # Sort candidates and select top `beam_size`
+        beam = sorted(candidates, key=lambda x: x[1])[-beam_size:]
+
+    return beam[0][0]  # Return sequence with highest score
+
+
 if __name__ == '__main__':
     console = Console()
     with console.status("[bold green]Processing...[/bold green]") as status:
@@ -76,6 +123,7 @@ if __name__ == '__main__':
 
         pad_idx = vocab.text_dict_trt['<pad>']
         start_idx = vocab.text_dict_trt['<sos>']
+        end_idx = vocab.text_dict_trt['<eos>']
         model = make_model(vocab_size_src, vocab_size_trt, N=ParameterStorage.n_layers)
         model.to(ParameterStorage.device)
         # 加载权重
@@ -92,8 +140,11 @@ if __name__ == '__main__':
             sample_ids = sample_batch[0][0]
             sample = sample_ids.unsqueeze(0).to(ParameterStorage.device) # 形状(1,max_sentence_length)
             sample_mask = Variable(torch.ones_like(sample)).to(ParameterStorage.device)
+            # 贪婪搜索
+            # result = greedy_decode(model, sample, sample_mask, max_len=ParameterStorage.max_sentence_length, start_symbol=start_idx)
+            # 束搜索
+            result = beam_search(model,sample,sample_mask,max_len=ParameterStorage.max_sentence_length,start_symbol=start_idx,end_symbol=end_idx)
 
-            result = greedy_decode(model, sample, sample_mask, max_len=ParameterStorage.max_sentence_length, start_symbol=start_idx)
             result = result.cpu().detach().numpy().flatten()
 
             sample_text = vocab.ids_to_single_text(sample_ids.numpy(),False,False)

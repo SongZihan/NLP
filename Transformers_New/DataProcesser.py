@@ -103,8 +103,8 @@ def run_epoch_mine(data_iter,model,loss_compute,pad):
         tokens += batch.ntokens
         if i % 50 == 1:
             elapsed = time.time() - start
-            print("Epoch Step: %d Loss: %f Tokens per Sec: %f" %
-                  (i, loss / batch.ntokens, tokens / elapsed))
+            # print("Epoch Step: %d Loss: %f Tokens per Sec: %f" %
+            #       (i, loss / batch.ntokens, tokens / elapsed))
             start = time.time()
             tokens = 0
 
